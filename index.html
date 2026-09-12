@@ -1,4 +1,4 @@
-<!-- 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,129 +31,8 @@
 
     <script src="qr.js"></script>
 </body>
-</html> -->
+</html>
 
-
-html<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pure Engine Scanner - No Libraries</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; background: #f4f6f9; padding: 20px; }
-        .scanner-container { position: relative; width: 100%; max-width: 400px; margin: 20px auto; border: 4px solid #333; border-radius: 10px; overflow: hidden; background: #000; }
-        video { display: none; }
-        canvas { width: 100%; display: block; }
-        #error-msg { color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; margin: 10px auto; max-width: 400px; border-radius: 5px; display: none; font-weight: bold; }
-        .list-box { max-width: 400px; margin: 20px auto; text-align: left; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        li { padding: 6px 0; border-bottom: 1px solid #eee; word-wrap: break-word; }
-    </style>
-</head>
-<body>
-
-    <h2>📱 Pure Vanilla JS QR Scanner (No Libraries)</h2>
-    <p id="status">કેમેરા શરૂ થઈ રહ્યો છે...</p>
-    <div id="error-msg"></div>
-
-    <div class="scanner-container">
-        <video id="video" autoplay playsinline></video>
-        <canvas id="canvas"></canvas>
-    </div>
-
-    <div class="list-box">
-        <strong>📋 Scanned QR List:</strong>
-        <ul id="qr-list"></ul>
-    </div>
-
-    <script>
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const statusText = document.getElementById('status');
-        const errorMsg = document.getElementById('error-msg');
-        const qrList = document.getElementById('qr-list');
-
-        let scannedSet = new Set(); 
-        let isWaiting = false; 
-        let detector = null;
-
-        // 1. બ્રાઉઝર સપોર્ટ ચેક અને કેમેરા સ્ટાર્ટ
-        function startScanner() {
-            if ('BarcodeDetector' in window) {
-                detector = new BarcodeDetector({ formats: ['qr_code'] });
-                
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-                .then(stream => {
-                    video.srcObject = stream;
-                    video.setAttribute("playsinline", true);
-                    video.play();
-                    statusText.innerText = "🔍 QR કોડને કેમેરા સામે રાખો (કેમેરો ચાલુ જ રહેશે)...";
-                    requestAnimationFrame(scanLoop);
-                })
-                .catch(err => {
-                    errorMsg.innerText = "કેમેરા પરમિશન આપો: " + err.message;
-                    errorMsg.style.display = "block";
-                });
-            } else {
-                statusText.innerHTML = "<b style='color:red;'>તમારા બ્રાઉઝરમાં BarcodeDetector બંધ છે! નીચે આપેલા પગલાં અનુસરો.</b>";
-            }
-        }
-
-        // 2. સતત ચાલુ રહેતું લાઈવ લૂપ (ક્યારેય ફ્રીઝ નહીં થાય)
-        function scanLoop() {
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                canvas.height = video.videoHeight;
-                canvas.width = video.videoWidth;
-                
-                // વીડિયોને સતત કેnવાસ પર ડ્રો કરો (જેથી કેમેરો લાઈવ રહે)
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                // જો નવું સ્કેન કરવા માટે ટાઈમર ચાલુ ના હોય તો જ ડીકોડ કરો
-                if (!isWaiting && detector) {
-                    detector.detect(canvas)
-                    .then(barcodes => {
-                        if (barcodes.length > 0) {
-                            processQR(barcodes[0].rawValue);
-                        }
-                    })
-                    .catch(err => console.error(err));
-                }
-            }
-            requestAnimationFrame(scanLoop); // લૂપ ચાલુ રાખો
-        }
-
-        // 3. લિસ્ટિંગ અને ડુપ્લિકેટ પ્રોસેસિંગ લોજિક
-        function processQR(data) {
-            isWaiting = true; // સેકન્ડના ભાગ માટે ડિટેક્શન રોકો
-            errorMsg.style.display = "none";
-
-            if (scannedSet.has(data)) {
-                // જો લિસ્ટમાં પહેલેથી હોય તો એરર આપો અને લિસ્ટ ના કરો
-                errorMsg.innerText = "❌ Error: AA QR Code Modela thi Scan thai gayelo chhe! (Duplicate)";
-                errorMsg.style.display = "block";
-                
-                // ૨.૫ સેકન્ડ પછી એરર જશે, પણ કેમેરો લાઈવ જ રહેશે
-                setTimeout(() => {
-                    errorMsg.style.display = "none";
-                    isWaiting = false;
-                }, 2500);
-            } else {
-                // જો નવો કોડ હોય તો લિસ્ટમાં ઉમેરો
-                scannedSet.add(data);
-                const li = document.createElement('li');
-                li.innerText = data;
-                qrList.appendChild(li);
-
-                statusText.innerText = "🎉 નવો QR કોડ લિસ્ટમાં ઉમેરાયો!";
-                
-                // ૨ સેકન્ડ પછી ફરીથી નવો QR રીડ કરવા માટે તૈયાર થશે
-                setTimeout(() => {
-                    statusText.innerText = "🔍 QR કોડને કેમેરા સામે રાખો...";
-                    isWaiting = false;
-                }, 2000);
-            }
-        }
 
         window.addEventListener('load', startScanner);
     </script>
