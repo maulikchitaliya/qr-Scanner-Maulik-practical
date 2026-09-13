@@ -7,28 +7,64 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <div class="phone">
+
         <div class="header">
-            <div class="title"><span>QR</span> Scanner</div>
-            <div class="status"><i></i> Scanning...</div>
+            <div class="title">
+                <span>QR</span> Scanner
+            </div>
+
+            <div class="status">
+                <i></i>
+                <span id="statusText">Starting camera...</span>
+            </div>
         </div>
 
         <div class="scanner">
-            <video id="video" autoplay muted playsinline></video>
+
+            <video
+                id="video"
+                autoplay
+                muted
+                playsinline
+            ></video>
+
+            <canvas
+                id="canvas"
+                hidden
+            ></canvas>
+
             <div class="frame">
-                <b></b><b></b><b></b><b></b>
+                <b></b>
+                <b></b>
+                <b></b>
+                <b></b>
             </div>
-            <div id="toast" class="toast"></div>
+
+            <div
+                id="toast"
+                class="toast"
+            ></div>
+
         </div>
 
         <div class="history-head">
-            <span>Scanned <strong id="count">0</strong></span>
-            <button id="clear">Clear</button>
+            <span>
+                Scanned
+                <strong id="count">0</strong>
+            </span>
+
+            <button id="clear">
+                Clear
+            </button>
         </div>
 
         <div id="results"></div>
+
     </div>
 
     <script src="qr.js"></script>
+
 </body>
 </html>

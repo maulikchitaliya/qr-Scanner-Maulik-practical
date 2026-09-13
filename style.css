@@ -280,3 +280,38 @@ video {
 .actions button:hover {
     background: #282d34;
 }
+
+.result {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 0;
+}
+
+.result-index {
+    min-width: 28px;
+    flex-shrink: 0;
+}
+
+.result-value {
+    flex: 1;
+    min-width: 0;
+}
+
+.copy-btn {
+    background: #28a745;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    min-height: 30px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.copy-btn:hover {
+    background: #218838;
+}
